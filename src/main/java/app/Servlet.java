@@ -21,8 +21,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class Servlet extends HttpServlet {
 
     private static final Logger log = LoggerFactory.getLogger(Servlet.class);
-    CopyOnWriteArrayList users = new CopyOnWriteArrayList();
-    int userquantity = users.size();
+    private ConcurrentHashMap<String, String> users = new ConcurrentHashMap<>();
 
     @Override
     public void init() {
@@ -34,17 +33,12 @@ public class Servlet extends HttpServlet {
         this.process(req, resp);
     }
 
-
     private void process(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        User user = new User(req.getHeader("User-Agent"),req.getHeader("X-Forwarded-For"));
-
+        User user = new User(req.getRemoteAddr(), req.getHeader("User-Agent"));
+        users.put(user.getIp(), user.getAddress());
         PrintWriter responseBody = resp.getWriter();
-        users.add(user);
         resp.setContentType("text/html");
-        for (int i =0;i<userquantity;i++) {
-            responseBody.println("<b align=\"center\">"+users.get(i).toString()+"</b>");
-        }
-
+        users.forEach((key, value) -> responseBody.println(key + "::" + value));
 
     }
 
@@ -53,18 +47,4 @@ public class Servlet extends HttpServlet {
         log.info("App Servlet destroyed");
     }
 
-
-
-//    PrintWriter responseBody = resp.getWriter();
-//
-//        resp.setContentType("text/html");
-//        responseBody.println("<h1 align=\"center\">Sample Servlet GET method processing</h1>");
-//
-//
-//    String client = req.getParameter("client");
-//        if (client == null) {
-//        client = "anonymous user";
-//    }
-//
-//    responseBody.println("<h3 align=\"center\">Hi, " + client + " </h3>");
 }
