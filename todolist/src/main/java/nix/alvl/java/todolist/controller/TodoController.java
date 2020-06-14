@@ -27,13 +27,13 @@ public class TodoController {
     }
 
     @GetMapping
-    public List<Todo> getAll() {
+    public List<Todo> getAll(@RequestParam boolean includeDone) {
         return todoService.getAll();
     }
 
 
-    @GetMapping("/{done}")
-    public List<Todo> getAllNotDone(@PathVariable String done) {
+    @GetMapping("/notdone")
+    public List<Todo> getAllNotDone() {
         return todoService.getAllNotDone();
     }
 
